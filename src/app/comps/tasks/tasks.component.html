@@ -1,0 +1,12 @@
+<div>
+    <div *ngIf="!loading">
+        <h1>{{errorMessage}}</h1>
+   </div>
+</div>
+<div *ngIf="!condition">
+<app-components (onadd)="add($event)"></app-components>
+</div>
+<button (click)="condition = !condition">{{condition ? 'hide' : 'show details'}}</button>
+<div *ngIf="condition">
+<app-task-item *ngFor="let task of tasks" [task]="task" (onDeleteTask)="deleteTask($event)" ></app-task-item>
+</div>

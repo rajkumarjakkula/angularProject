@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    {
+      "name": "rajkumar jakkula",
+      "id": 30,
+      "email": "xyz@gmail.com",
+      "password": "98765"
+    },
+    {
+      "name": "Jakkula Rajkumar",
+      "email": "rajkumarjakkula969@gmail.com",
+      "password": "123456",
+      "id": 31
+    },
+    {
+      "name": "ram",
+      "email": "rajkumarjakkula969@gmail.com",
+      "password": "123456",
+      "id": 32
+    }
+  ]
+}
