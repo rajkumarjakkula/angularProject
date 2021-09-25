@@ -1,5 +1,6 @@
 import { Component, OnInit, Output ,EventEmitter} from '@angular/core';
 import { Task } from '../Task';
+
 @Component({
   selector: 'app-components',
   templateUrl: './components.component.html',
@@ -25,8 +26,6 @@ export class ComponentsComponent implements OnInit {
     }
     
     this.onadd.emit(newTask);
-
-
     this.name=''
     this.password=''
     this.email=''

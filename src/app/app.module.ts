@@ -9,7 +9,10 @@ import { ButtonComponent } from './comps/button/button.component';
 import { HeaderComponent } from './comps/header/header.component';
 import { TasksComponent } from './comps/tasks/tasks.component';
 import { TaskItemComponent } from './comps/task-item/task-item.component';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -23,8 +26,11 @@ import { TaskItemComponent } from './comps/task-item/task-item.component';
   imports: [
     FormsModule,
     BrowserModule,
+    NgbModule,
     AppRoutingModule,
-    HttpClientModule,   
+    HttpClientModule,
+    BrowserAnimationsModule,
+	ToastrModule.forRoot()   
   ],
   providers: [],
   bootstrap: [AppComponent]

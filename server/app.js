@@ -29,10 +29,10 @@ mongoose.connection.on('error',(err)=>{
 
 app.use(cors())
 require('./models/user')
+require('./models/admin')
 app.use(express.json())
 app.use(require('./routes/auth'))
 
-app.post("/shortUrls", (req, res) => {});
 app.listen(PORT,()=>{
     console.log("port working at", 5500)
 });

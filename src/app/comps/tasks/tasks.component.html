@@ -1,12 +1,28 @@
 <div>
-    <div *ngIf="!loading">
-        <h1>{{errorMessage}}</h1>
-   </div>
-</div>
+<button class="btn btn-lg btn-outline-primary" (click)="open(mymodal)">Open My Modal</button>
+<ng-template #mymodal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Bootstrap Modal</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    This is example from ItSolutionStuff.com
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+  </div>
+</ng-template>
+
 <div *ngIf="!condition">
 <app-components (onadd)="add($event)"></app-components>
 </div>
 <button (click)="condition = !condition">{{condition ? 'hide' : 'show details'}}</button>
 <div *ngIf="condition">
+<table>
 <app-task-item *ngFor="let task of tasks" [task]="task" (onDeleteTask)="deleteTask($event)" ></app-task-item>
+</table>
+</div>
+
 </div>
