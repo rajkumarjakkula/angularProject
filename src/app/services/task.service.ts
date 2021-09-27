@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Task } from '../Task';
 import { HttpClient,HttpHeaders,HttpErrorResponse} from '@angular/common/http';
+import { JwtHelperService } from "@auth0/angular-jwt";
+
 import { Observable } from 'rxjs';
 import {catchError } from 'rxjs/operators';
 
@@ -15,6 +17,9 @@ const httpOptions={
   providedIn: 'root'
 })
 export class TaskService {
+
+  JwtAuthToken:any
+  user:any
 
   // private apiurl='http://localhost:8080/allusers';
   // private apisignup='http://localhost:8080/register';
@@ -53,6 +58,26 @@ export class TaskService {
   }
 
 
+  storeUser(Token: any,user: any):any{
+    localStorage.setItem('token',Token)
+    localStorage.setItem('user',JSON.stringify(user))
+    this.JwtAuthToken = Token;
+    this.user = user;
+  }
+  logout(){
+    this.JwtAuthToken = null;
+    this.user = null;
+    localStorage.clear();
+  }
+  loadToken(){
+    const token = localStorage.getItem('id_token')
+    this.JwtAuthToken = token
+  }
+
+  isTokenExpired(){
+    const helper = new JwtHelperService();
+    return helper.isTokenExpired(this.JwtAuthToken);
+  }
   // adduser(user:any):Observable<any>{
   //   return this.http.post<any>(this.apisignup,user,httpOptions);
   // }

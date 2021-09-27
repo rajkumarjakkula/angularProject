@@ -5,6 +5,7 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 
 import { Task } from 'src/app/Task';
+import { AuthserviceGuard } from 'src/app/app/authservice.guard';
 @Component({
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
@@ -57,9 +58,12 @@ export class TasksComponent implements OnInit {
   
   add(user:any){
     this.taskserice.signUp(user).subscribe(data=>{
-        console.log(data,"dfdgfdsg")
         this.data=data
-        this.toastr.success(data.message)
+        console.log(data)
+        if(data){
+          this.taskserice.storeUser(data.token,data.user)
+        }
+        this.toastr.success(data.user.name)
         
     });
   }

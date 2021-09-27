@@ -2,7 +2,8 @@ const { Mongoose } = require("mongoose")
 
 const mongoose=require('mongoose')
 const AdminSchema = new mongoose.Schema({
-    name:{
+    name:
+    {
         required:true,
         type:String
     },

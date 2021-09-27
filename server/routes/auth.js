@@ -1,4 +1,3 @@
-const { Router } = require('express')
 const express = require('express')
 const router = express.Router()
 const mongoose=require('mongoose')
@@ -6,13 +5,52 @@ const User = mongoose.model('User')
 const bcrypt = require('bcryptjs')
 const Admin=mongoose.model('Admin')
 const jwt=require("jsonwebtoken")
-// const {JWT_SERECTKEY}=require('../keys')
+ const {JWT_SERECTKEY}=require('../keys')
 
 const middleware=(req,res,next)=>{
-    console.log("middleware executed.....")
-    next()
+      //  console.log(req.headers)
+        const {authorization} =req.headers
+     //   console.log(authorization,"dfs")
+        if(!authorization){
+            return res.status(401).json({error:"yo must be logged in"})
+        }
+        const token=authorization.replace("Bearer ","")
+      //  console.log(token,"fadgfs")
+        jwt.verify(token,JWT_SERECTKEY,(err,payload)=>{
+            if(err)
+            {
+                return res.status(401).json({error:"you must be logged in"})
+            }
+         //   console.log(payload,token)
+            const {_id}=payload
+            User.findById(_id).then(userdata=>{
+                req.user=userdata
+                next()
+            })  
+        })
+    }
+const adminmiddleware=(req,res,next)=>{
+  console.log(req.headers)
+    const {authorization} =req.headers
+   console.log(authorization,"dfs")
+    if(!authorization){
+        return res.status(401).json({error:"yo must be logged in"})
+    }
+    const token=authorization.replace("Bearer ","")
+//  console.log(token,"fadgfs")
+    jwt.verify(token,JWT_SERECTKEY,(err,payload)=>{
+        if(err){
+            return res.status(401).json({error:"you must be logged in"})
+        }
+       console.log(payload,token)
+        const {_id}=payload
+        Admin.findById(_id).then(userdata=>{
+            req.user=userdata
+            console.log(userdata)
+            next()
+        })  
+    })
 }
-
 router.post('/signup',(req,res)=>{
     const {name,email,password}=req.body
     if (!email  || !password ||!name){
@@ -32,13 +70,14 @@ router.post('/signup',(req,res)=>{
             })
             user.save()
             .then(()=>{
+                //res.redirect('/signin')
                 return res.json({message:"successfully Signup"})
             })
             .catch(error=>{
-                console.log(error)
+                    // console.log(error)
+                    return res.json({error:error})
             })
-        })
-        
+        })  
     })
     .catch(error=>{
         console.log(error)
@@ -56,7 +95,7 @@ router.post('/adminsignup',(req,res)=>{
         }
         bcrypt.hash(password,13)
         .then(hashedpassword=>{
-            const user = new Admin(  {
+            const user = new Admin({
                 email:email,
                 password:hashedpassword,
                 name
@@ -76,7 +115,7 @@ router.post('/adminsignup',(req,res)=>{
     })
 })
 
-router.get('/allusers',middleware,(req,res)=>{
+router.get('/allusers',adminmiddleware,(req,res)=>{
     User.find()
    // console.log("entered..")
     .then(Users=>{
@@ -87,6 +126,49 @@ router.get('/allusers',middleware,(req,res)=>{
     })
 })
 
+
+router.get('/profile',middleware,(req,res)=>{
+   // console.log(req.user)
+   User.findOne({_id:req.user._id})
+    .then(mypost=>{
+        return res.json(mypost)
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+})
+
+router.post('/signin',(req,res,next)=>{
+    const {email,password}=req.body
+    if(!email || !password){
+        return res.status(422).json({error:"please enter all the fields"})
+    }
+    User.findOne({email:email})
+    .then(savedUser=>{
+        console.log(savedUser)
+        if(!savedUser){
+            return res.status(422).json({error:"Invalid mail or password"})
+        }
+        bcrypt.compare(password,savedUser.password)
+        .then(doMatch=>{
+            if(doMatch){
+                const token=jwt.sign({_id:savedUser._id},JWT_SERECTKEY)
+                console.log(token)
+                const {_id,name,email}=savedUser
+                res.json({token:token,user:{_id,name,email}})
+            }
+            else
+            {
+                next()
+            }  
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    })
+},(req,res)=>{
+    return res.status(422).json({error:"Invalid mail or password"})
+})
 router.post('/adminsignin',(req,res)=>{
     const {email,password}=req.body
     if(!email || !password){
@@ -100,32 +182,10 @@ router.post('/adminsignin',(req,res)=>{
         bcrypt.compare(password,savedUser.password)
         .then(doMatch=>{
             if(doMatch){
-                res.send({message:"signin successful"})
-            }
-            else
-            {
-                return res.status(422).json({error:"Invalid mail or password"})
-            }  
-        })
-        .catch(err=>{
-            console.log(err)
-        })
-    })
-})
-router.post('/signin',(req,res)=>{
-    const {email,password}=req.body
-    if(!email || !password){
-        return res.status(422).json({error:"please enter all the fields"})
-    }
-    User.findOne({email:email})
-    .then(savedUser=>{
-        if(!savedUser){
-            return res.status(422).json({error:"Invalid mail or password"})
-        }
-        bcrypt.compare(password,savedUser.password)
-        .then(doMatch=>{
-            if(doMatch){
-                res.send({message:"signin successful"})
+                //res.send({message:"signin successful"})
+                const token=jwt.sign({_id:savedUser._id},JWT_SERECTKEY)
+                const {_id,email}=savedUser
+                res.json({token:token,user:{_id,email}})
             }
             else{
                 return res.status(422).json({error:"Invalid mail or password"})
@@ -136,7 +196,7 @@ router.post('/signin',(req,res)=>{
         })
     })
 })
-router.put('/updateuser/:userId',middleware,(req,res)=>{
+router.put('/updateuser/:userId',adminmiddleware,(req,res)=>{
 
     const id=req.params.userId;
     User.findByIdAndUpdate(id,req.body,{userFindAndModify:false})
@@ -152,7 +212,7 @@ router.put('/updateuser/:userId',middleware,(req,res)=>{
         console.log(err)
     })
 })
-router.delete('/deleteuser/:userId',middleware,(req,res)=>{
+router.delete('/deleteuser/:userId',adminmiddleware,(req,res)=>{
     User.findByIdAndDelete({_id:req.params.userId})
     .then(user=>{
         if(!user){
